@@ -1,0 +1,2 @@
+# SZYMON
+# QUANT + DCT MOD + LSB

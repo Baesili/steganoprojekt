@@ -1,0 +1,2 @@
+# KONRAD
+# ARNOLD + LSB
