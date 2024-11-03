@@ -2,7 +2,18 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter.filedialog import askopenfilename
 from PIL import Image, ImageTk
+from stegano import lsb
+from random import randrange
+from method_2 import arnolds_cat_transform
+import base64
+import time
 
+
+global image_list
+image_list = ["cover_image", "secret_image", "stego_image"]
+
+global display_list
+display_list = ["cover_display", "secret_display", "stego_display"]
 
 def method_select(selection):
     global selected_method
@@ -14,49 +25,58 @@ def endec_mode_select(selection):
 
 def pick_cover():
     if endec_mode == "CONCEAL":
-        global cover_image 
         cover_image = askopenfilename()
         with Image.open(cover_image).convert("RGB") as cover_image:
             if cover_image.size != (1000, 1000):
                 cover_image = cover_image.resize((1000, 1000))
-        global cover_display 
+        global image_list
+        image_list[0] = cover_image 
         cover_display = cover_image.resize((500, 500))
         cover_display = ImageTk.PhotoImage(cover_display)
-        Label(cover_frame, image=cover_display).grid(row=0, column=0, padx=0, pady=0)
+        global display_list
+        display_list[0] = cover_display
+        Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
     elif endec_mode == "REVEAL":
         global cover_image_path
         cover_image_path = filedialog.askdirectory()    
 
 def pick_secret():
-    if endec_mode == "CONCEAL":
-        global secret_image 
+    if endec_mode == "CONCEAL": 
         secret_image = askopenfilename()
         with Image.open(secret_image).convert("RGB") as secret_image:
             if secret_image.size != (350, 350):
                 secret_image = secret_image.resize((350, 350))
-        global secret_display 
+        global image_list
+        image_list[1] = secret_image
         secret_display = ImageTk.PhotoImage(secret_image)
-        Label(secret_frame, image=secret_display).grid(row=0, column=0, padx=0, pady=0)
+        global display_list
+        display_list[1] = secret_display
+        Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
     elif endec_mode == "REVEAL":
         global secret_image_path
         secret_image_path = filedialog.askdirectory() 
 
 def pick_stego():
-    if endec_mode == "REVEAL":
-        global stego_image 
+    if endec_mode == "REVEAL": 
         stego_image = askopenfilename()
         with Image.open(stego_image).convert("RGB") as stego_image:
             if stego_image.size != (1000, 1000):
                 stego_image = stego_image.resize((1000, 1000))
-        global stego_display 
+        global image_list
+        image_list[2] = stego_image 
         stego_display = stego_image.resize((500, 500))
         stego_display = ImageTk.PhotoImage(stego_display)
-        Label(stego_frame, image=stego_display).grid(row=0, column=0, padx=0, pady=0)
+        global display_list
+        display_list[2] = stego_display
+        Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
     elif endec_mode == "CONCEAL":
         global stego_image_path
         stego_image_path = filedialog.askdirectory() 
 
 def go_activate():
+    global image_list
+    global display_list
+
     if selected_method == "v CHOOSE METHOD v": 
         return
     
@@ -68,9 +88,57 @@ def go_activate():
     
     elif selected_method == "M2 - ARNOLD'S CAT MAP":
         if endec_mode == "CONCEAL":
-            print("put function(cover, secret) here")
+            iterations = 1
+            scrambled_secret = arnolds_cat_transform(image_list[1], iterations, 0)
+            
+            scrambled_display = ImageTk.PhotoImage(scrambled_secret)
+            display_list[1] = scrambled_display
+            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+            
+            scrambled_secret.save("method-2_scrambled-secret.png")
+            with open("method-2_scrambled-secret.png", "rb") as image:
+                scrambled_secret_string = base64.b64encode(image.read())
+            
+            stego_image = lsb.hide(image_list[0], scrambled_secret_string)
+            
+            stego_display = stego_image.resize((500, 500))
+            stego_display = ImageTk.PhotoImage(stego_display)
+            display_list[2] = stego_display
+            Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+            
+            if stego_image_path:
+                stego_image.save(stego_image_path+"/method-2_stego-image.png")
+            else:
+                stego_image.save("method-2_stego-image.png")
+
+
         elif endec_mode == "REVEAL":
-            print("put function(stego) here")
+            iterations = 599
+            scrambled_secret_string = lsb.reveal(image_list[2])
+
+            # print(scrambled_secret_string)
+            # print(len(scrambled_secret_string))
+
+            # scrambled_secret_string = base64.b64encode(bytes(scrambled_secret_string, 'utf-8'))
+            scrambled_secret_string = scrambled_secret_string[2:]
+
+            missing_padding = len(scrambled_secret_string) % 4
+            if missing_padding:
+                scrambled_secret_string += '=' * (4 - missing_padding)
+
+            imgdata = base64.b64decode(scrambled_secret_string)
+            scrambled_image = "method-2_unscrambled-secret.png"
+            
+            with open(scrambled_image, 'wb') as f:
+                f.write(imgdata)
+
+            secret_image = arnolds_cat_transform(scrambled_image, iterations, 1)
+            image_list[1] = secret_image
+
+            secret_display = ImageTk.PhotoImage(secret_image)
+            display_list[1] = secret_display
+            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+
     
     elif selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB":
         if endec_mode == "CONCEAL":

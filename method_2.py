@@ -8,7 +8,11 @@ import numpy as np
 from PIL import Image
 
 
-def arnolds_cat_transform(image, iterations):
+def arnolds_cat_transform(image, iterations, mode):
+    if mode:
+        with Image.open(image).convert("RGB") as image:
+            image = image.resize((350, 350))
+    
     # Convert the image to a numpy array
     img_array = np.array(image)
     n = img_array.shape[0]  # Assuming square image
@@ -33,10 +37,3 @@ def arnolds_cat_transform(image, iterations):
 
     # Convert the result back to an image
     return Image.fromarray(transformed_img)
-
-
-if __name__ == "__main__":
-    
-    iterations = int(input("How many iterations?: "))
-    transformed_image = arnolds_cat_transform(img, iterations)
-    transformed_image.save("scrambled.jpg", format="JPEG")
