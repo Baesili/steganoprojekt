@@ -6,8 +6,6 @@ import io
 import sys
 import numpy as np
 from PIL import Image
-from tkinter.filedialog import askopenfilename
-print("imports")
 
 
 def arnolds_cat_transform(image, iterations):
@@ -38,11 +36,7 @@ def arnolds_cat_transform(image, iterations):
 
 
 if __name__ == "__main__":
-    ipath = askopenfilename()
-    with Image.open(ipath).convert("RGB") as img:
-        if img.size != (64, 64):
-            img = img.resize((64, 64))
-    img.load()
+    
     iterations = int(input("How many iterations?: "))
     transformed_image = arnolds_cat_transform(img, iterations)
     transformed_image.save("scrambled.jpg", format="JPEG")
