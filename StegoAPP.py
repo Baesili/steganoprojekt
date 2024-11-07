@@ -6,6 +6,7 @@ from stegano import lsb
 from random import randrange
 from method_2 import arnolds_cat_transform
 import base64
+from pvd_lib import pvd_lib
 import time
 
 
@@ -76,6 +77,7 @@ def pick_stego():
 def go_activate():
     global image_list
     global display_list
+    global stego_image_path, secret_image_path, cover_image_path
 
     if selected_method == "v CHOOSE METHOD v": 
         return
@@ -141,10 +143,13 @@ def go_activate():
 
     
     elif selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB":
+        pvd_obj = pvd_lib()
         if endec_mode == "CONCEAL":
             print("put function(cover, secret) here")
+            pvd_obj.pvd_embed(image_list[0], image_list[1], stego_image_path)
         elif endec_mode == "REVEAL":
             print("put function(stego) here")
+            pvd_obj.pvd_embed(image_list[0], secret_image_path, image_list[2])
     
     elif selected_method == "M4 - DCT TABLE MODIFICATION":
         if endec_mode == "CONCEAL":
