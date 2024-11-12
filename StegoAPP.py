@@ -124,52 +124,75 @@ def go_activate():
     
     elif selected_method == "M1 - AES + BLOWFISH ENCRYPTION":
         if endec_mode == "CONCEAL":
-            image = Image.open(secret_path)
-            img_byte_array = io.BytesIO()
-            image.save(img_byte_array, format=image.format)
-            img_bytes = img_byte_array.getvalue()
-            iv = bytearray(16)
-            keyaes = 'UZ4i59vPgLRT16s8FZ4i81vPgLRT16qk'
-            keyaes = bytes(keyaes, encoding="utf-8")
-            print("encrypt with AES")
-            cipher_aes= AES.new(keyaes, AES.MODE_CBC, iv)
-            padded_data = pad(img_bytes, AES.block_size)
-            encrypted_data = iv + cipher_aes.encrypt(padded_data)
-            output_image_path = "method-1_encrypted-AES.png"
-            with open(output_image_path, 'wb') as f:
-                f.write(encrypted_data)
-
-            print("encrypt with Blowfish")
-            keyb = bytearray(10)
-            cipher_b = Blowfish.new(keyb, Blowfish.MODE_CBC)
-            with open("method-1_encrypted-AES.png", 'rb') as f:
-                plaintext = f.read()
-            padded_text = pad(plaintext, Blowfish.block_size)
-            iv = cipher_b.iv
-            ciphertext_bf = iv + cipher_b.encrypt(padded_text)
+            AES_KEY = b'1234567890abcdef'  # AES 128-bit key
+            AES_IV = b'abcdef1234567890'  # AES IV
+            BLOWFISH_KEY = b'12345678'  # Blowfish 64-bit key
+            BLOWFISH_IV = b'abcdefgh'  # Blowfish IV
             
-            output_blowfish = "method-1_encrypted-AES-BFSH.png"
-            with open(output_blowfish, 'wb') as f:
-                f.write(ciphertext_bf)
-
-            with open("method-1_encrypted-AES-BFSH.png", "rb") as image:
-                fully_encrypted_string = base64.b64encode(image.read())
+            with open("secret-image_temp.png", 'rb') as f:
+                img_data = f.read()
             
-            stego_image = lsb.hide(image_list[0], fully_encrypted_string)
+            aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
+            aes_encrypted = aes_cipher.encrypt(pad(img_data, AES.block_size))
+            
+            # Encrypt the AES-encrypted data with Blowfish
+            blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
+            blowfish_encrypted = blowfish_cipher.encrypt(pad(aes_encrypted, Blowfish.block_size))
+            
+            # Save the encrypted data
+            with open("method-1_encrypted-secret.png", 'wb') as f:
+                f.write(blowfish_encrypted)
 
-            print("display")
+            with open("method-1_encrypted-secret.png", "rb") as image:
+                encrypted_secret_string = base64.b64encode(image.read())
+            stego_image = lsb.hide(image_list[0], encrypted_secret_string)
+            
             stego_display = stego_image.resize((500, 500))
             stego_display = ImageTk.PhotoImage(stego_display)
             display_list[2] = stego_display
             Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
-
+            
             if stego_image_path:
                 stego_image.save(stego_image_path+"/method-1_stego-image.png")
             else:
                 stego_image.save("method-1_stego-image.png")
+            
 
         elif endec_mode == "REVEAL":
-            print("put function(stego) here")
+            AES_KEY = b'1234567890abcdef'  # AES 128-bit key
+            AES_IV = b'abcdef1234567890'  # AES IV
+            BLOWFISH_KEY = b'12345678'  # Blowfish 64-bit key
+            BLOWFISH_IV = b'abcdefgh'  # Blowfish IV
+            
+            encrypted_secret_string = lsb.reveal(image_list[2])[2:]
+
+            missing_padding = len(encrypted_secret_string) % 4
+            if missing_padding:
+                encrypted_secret_string += '=' * (4 - missing_padding)
+
+            imgdata = base64.b64decode(encrypted_secret_string)
+            scrambled_image = "method-1_encrypted-secret.png"
+
+            with open("method-1_encrypted-secret.png", 'rb') as f:
+                encrypted_data = f.read()
+            
+            blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
+            blowfish_decrypted = unpad(blowfish_cipher.decrypt(encrypted_data), Blowfish.block_size)
+            
+            # Decrypt the Blowfish-decrypted data with AES
+            aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
+            aes_decrypted = unpad(aes_cipher.decrypt(blowfish_decrypted), AES.block_size)
+            
+            # Save the decrypted data
+            with open("method-1_decrypted-secret.png", 'wb') as f:
+                f.write(aes_decrypted)
+
+            with Image.open("method-1_decrypted-secret.png") as secret_image:
+                secret_display = ImageTk.PhotoImage(secret_image)
+            display_list[1] = secret_display
+            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+            Label(cover_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+
     
     elif selected_method == "M2 - ARNOLD'S CAT MAP":
         if endec_mode == "CONCEAL":
