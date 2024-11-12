@@ -5,8 +5,14 @@ from PIL import Image, ImageTk
 from stegano import lsb
 from random import randrange
 from method_2 import arnolds_cat_transform
-import base64
 from pvd_lib import pvd_lib
+from Crypto.Cipher import AES
+from Crypto.Cipher import Blowfish
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+from Crypto.Util import Counter
+import base64
+import io
 import time
 
 
@@ -24,6 +30,22 @@ cover_image_path = 0
 secret_image_path = 0
 stego_image_path = 0
 
+global cover_path, secret_path, stego_path
+
+
+def zero_last_bit(image_path):
+    img = Image.open(image_path)
+    img = img.convert("RGB")
+    pixels = img.load() 
+    width, height = img.size
+    for x in range(width):
+        for y in range(height):
+            r, g, b = pixels[x, y]
+            r &= 0xFE
+            g &= 0xFE
+            b &= 0xFE
+            pixels[x, y] = (r, g, b)
+    return img 
 
 def method_select(selection):
     global selected_method
@@ -34,8 +56,10 @@ def endec_mode_select(selection):
     endec_mode = selection
 
 def pick_cover():
+    global cover_image_path, cover_path
     if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" and endec_mode == "REVEAL"):
-        cover_image = askopenfilename()
+        cover_path = askopenfilename()
+        cover_image = cover_path
         with Image.open(cover_image).convert("RGB") as cover_image:
             if cover_image.size != (1000, 1000):
                 cover_image = cover_image.resize((1000, 1000))
@@ -48,12 +72,13 @@ def pick_cover():
         display_list[0] = cover_display
         Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
     elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB":
-        global cover_image_path
         cover_image_path = filedialog.askdirectory()    
 
 def pick_secret():
     if endec_mode == "CONCEAL": 
-        secret_image = askopenfilename()
+        global secret_path
+        secret_path = askopenfilename()
+        secret_image = secret_path
         with Image.open(secret_image).convert("RGB") as secret_image:
             if secret_image.size != (350, 350):
                 secret_image = secret_image.resize((350, 350))
@@ -70,7 +95,9 @@ def pick_secret():
 
 def pick_stego():
     if endec_mode == "REVEAL": 
-        stego_image = askopenfilename()
+        global stego_path
+        stego_path = askopenfilename()
+        stego_image = stego_path
         with Image.open(stego_image).convert("RGB") as stego_image:
             if stego_image.size != (1000, 1000):
                 stego_image = stego_image.resize((1000, 1000))
@@ -90,13 +117,57 @@ def go_activate():
     global image_list
     global display_list
     global stego_image_path, secret_image_path, cover_image_path
+    global cover_path, secret_path, stego_path
 
     if selected_method == "v CHOOSE METHOD v": 
         return
     
     elif selected_method == "M1 - AES + BLOWFISH ENCRYPTION":
         if endec_mode == "CONCEAL":
-            print("put function(cover, secret) here")
+            image = Image.open(secret_path)
+            img_byte_array = io.BytesIO()
+            image.save(img_byte_array, format=image.format)
+            img_bytes = img_byte_array.getvalue()
+            iv = bytearray(16)
+            keyaes = 'UZ4i59vPgLRT16s8FZ4i81vPgLRT16qk'
+            keyaes = bytes(keyaes, encoding="utf-8")
+            print("encrypt with AES")
+            cipher_aes= AES.new(keyaes, AES.MODE_CBC, iv)
+            padded_data = pad(img_bytes, AES.block_size)
+            encrypted_data = iv + cipher_aes.encrypt(padded_data)
+            output_image_path = "method-1_encrypted-AES.png"
+            with open(output_image_path, 'wb') as f:
+                f.write(encrypted_data)
+
+            print("encrypt with Blowfish")
+            keyb = bytearray(10)
+            cipher_b = Blowfish.new(keyb, Blowfish.MODE_CBC)
+            with open("method-1_encrypted-AES.png", 'rb') as f:
+                plaintext = f.read()
+            padded_text = pad(plaintext, Blowfish.block_size)
+            iv = cipher_b.iv
+            ciphertext_bf = iv + cipher_b.encrypt(padded_text)
+            
+            output_blowfish = "method-1_encrypted-AES-BFSH.png"
+            with open(output_blowfish, 'wb') as f:
+                f.write(ciphertext_bf)
+
+            with open("method-1_encrypted-AES-BFSH.png", "rb") as image:
+                fully_encrypted_string = base64.b64encode(image.read())
+            
+            stego_image = lsb.hide(image_list[0], fully_encrypted_string)
+
+            print("display")
+            stego_display = stego_image.resize((500, 500))
+            stego_display = ImageTk.PhotoImage(stego_display)
+            display_list[2] = stego_display
+            Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+
+            if stego_image_path:
+                stego_image.save(stego_image_path+"/method-1_stego-image.png")
+            else:
+                stego_image.save("method-1_stego-image.png")
+
         elif endec_mode == "REVEAL":
             print("put function(stego) here")
     
@@ -153,8 +224,9 @@ def go_activate():
             secret_display = ImageTk.PhotoImage(secret_image)
             display_list[1] = secret_display
             Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-
+            Label(cover_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
     
+
     elif selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB":
         pvd_obj = pvd_lib()
         if endec_mode == "CONCEAL":
