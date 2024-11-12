@@ -11,10 +11,19 @@ import time
 
 
 global image_list
-image_list = ["cover_image", "secret_image", "stego_image"]
+image_list = ["cover-image", "secret-image", "stego-image"]
+
+global temp_image_path
+temp_image_path = ["cover-image-temp.png", "secret-image-temp.png", "stego-image-temp.png"]
 
 global display_list
-display_list = ["cover_display", "secret_display", "stego_display"]
+display_list = ["cover-display", "secret-display", "stego-display"]
+
+global cover_image_path, secret_image_path, stego_image_path
+cover_image_path = 0
+secret_image_path = 0
+stego_image_path = 0
+
 
 def method_select(selection):
     global selected_method
@@ -25,11 +34,12 @@ def endec_mode_select(selection):
     endec_mode = selection
 
 def pick_cover():
-    if endec_mode == "CONCEAL":
+    if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" and endec_mode == "REVEAL"):
         cover_image = askopenfilename()
         with Image.open(cover_image).convert("RGB") as cover_image:
             if cover_image.size != (1000, 1000):
                 cover_image = cover_image.resize((1000, 1000))
+        cover_image.save("cover-image_temp.png")
         global image_list
         image_list[0] = cover_image 
         cover_display = cover_image.resize((500, 500))
@@ -37,7 +47,7 @@ def pick_cover():
         global display_list
         display_list[0] = cover_display
         Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
-    elif endec_mode == "REVEAL":
+    elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB":
         global cover_image_path
         cover_image_path = filedialog.askdirectory()    
 
@@ -47,6 +57,7 @@ def pick_secret():
         with Image.open(secret_image).convert("RGB") as secret_image:
             if secret_image.size != (350, 350):
                 secret_image = secret_image.resize((350, 350))
+        secret_image.save("secret-image_temp.png")
         global image_list
         image_list[1] = secret_image
         secret_display = ImageTk.PhotoImage(secret_image)
@@ -63,6 +74,7 @@ def pick_stego():
         with Image.open(stego_image).convert("RGB") as stego_image:
             if stego_image.size != (1000, 1000):
                 stego_image = stego_image.resize((1000, 1000))
+        stego_image.save("stego-image_temp.png")
         global image_list
         image_list[2] = stego_image 
         stego_display = stego_image.resize((500, 500))
@@ -129,13 +141,14 @@ def go_activate():
                 scrambled_secret_string += '=' * (4 - missing_padding)
 
             imgdata = base64.b64decode(scrambled_secret_string)
-            scrambled_image = "method-2_unscrambled-secret.png"
+            scrambled_image = "method-2_extracted-secret.png"
             
             with open(scrambled_image, 'wb') as f:
                 f.write(imgdata)
 
             secret_image = arnolds_cat_transform(scrambled_image, iterations, 1)
             image_list[1] = secret_image
+            secret_image.save("method-2_extracted-unscrambled-image.png")
 
             secret_display = ImageTk.PhotoImage(secret_image)
             display_list[1] = secret_display
@@ -146,10 +159,28 @@ def go_activate():
         pvd_obj = pvd_lib()
         if endec_mode == "CONCEAL":
             print("put function(cover, secret) here")
-            pvd_obj.pvd_embed(image_list[0], image_list[1], stego_image_path)
+            pvd_obj.pvd_embed("cover-image_temp.png", "secret-image_temp.png", "method-3_stego-image.png")
+            
+            with Image.open("method-3_stego-image.png").convert("RGB") as stego_image:
+                stego_display = stego_image.resize((500, 500))
+                stego_display = ImageTk.PhotoImage(stego_display)
+                if stego_image_path:
+                    stego_image.save(stego_image_path)
+            display_list[2] = stego_display
+            Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+
         elif endec_mode == "REVEAL":
             print("put function(stego) here")
-            pvd_obj.pvd_embed(image_list[0], secret_image_path, image_list[2])
+            pvd_obj.pvd_extract("cover-image_temp.png", "method-3_secret-image.png", "stego-image_temp.png")
+
+            with Image.open("method-3_secret-image.png").convert("RGB") as secret_image:
+                secret_display = secret_image.resize((350, 350))
+                secret_display = ImageTk.PhotoImage(secret_display)
+                if secret_image_path:
+                    secret_image.save(secret_image_path)
+            display_list[1] = secret_display
+            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+            
     
     elif selected_method == "M4 - DCT TABLE MODIFICATION":
         if endec_mode == "CONCEAL":
