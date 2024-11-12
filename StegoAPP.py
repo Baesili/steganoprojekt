@@ -12,6 +12,7 @@ from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
 from Crypto.Util import Counter
 import base64
+import numpy
 import io
 import time
 
@@ -35,17 +36,10 @@ global cover_path, secret_path, stego_path
 
 def zero_last_bit(image_path):
     img = Image.open(image_path)
-    img = img.convert("RGB")
-    pixels = img.load() 
-    width, height = img.size
-    for x in range(width):
-        for y in range(height):
-            r, g, b = pixels[x, y]
-            r &= 0xFE
-            g &= 0xFE
-            b &= 0xFE
-            pixels[x, y] = (r, g, b)
-    return img 
+    img_array = numpy.array(img)
+    img_array = img_array & 0xFE
+    modified_img = Image.fromarray(img_array)
+    return modified_img
 
 def method_select(selection):
     global selected_method
@@ -191,7 +185,9 @@ def go_activate():
                 secret_display = ImageTk.PhotoImage(secret_image)
             display_list[1] = secret_display
             Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-            Label(cover_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+            
+            display_list[0] = ImageTk.PhotoImage(zero_last_bit("stego-image_temp.png").resize((500,500)))
+            Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
 
     
     elif selected_method == "M2 - ARNOLD'S CAT MAP":
@@ -247,7 +243,9 @@ def go_activate():
             secret_display = ImageTk.PhotoImage(secret_image)
             display_list[1] = secret_display
             Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-            Label(cover_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+
+            display_list[0] = ImageTk.PhotoImage(zero_last_bit("stego-image_temp.png").resize((500,500)))
+            Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
     
 
     elif selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB":
