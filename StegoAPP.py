@@ -26,6 +26,13 @@ temp_image_path = ["temp/cover-image-temp.png", "temp/secret-image_temp.png", "t
 global display_list
 display_list = ["cover-display", "secret-display", "stego-display"]
 
+global blank_images
+blank_images = ["temp/blank500.png", "temp/blank350.png"]
+with Image.open(blank_images[0]).convert("RGB") as blank500:
+    blank_images[0] = blank500
+with Image.open(blank_images[1]).convert("RGB") as blank350:
+    blank_images[1] = blank350
+
 global cover_image_path, secret_image_path, stego_image_path
 cover_image_path = 0
 secret_image_path = 0
@@ -600,6 +607,10 @@ stego_select_button.pack()
 
 stego_frame = Frame(right_frame, width=502, height=502, bg="gray")
 stego_frame.grid(row=2, column=0, padx=5, pady=5)
+
+Label(cover_frame, image=blank_images[0]).grid(row=0, column=0, padx=0, pady=0)
+Label(secret_frame, image=blank_images[1]).grid(row=0, column=0, padx=0, pady=0)
+Label(stego_frame, image=blank_images[0]).grid(row=0, column=0, padx=0, pady=0)
 
 root.mainloop()
 
