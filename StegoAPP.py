@@ -38,343 +38,479 @@ def reset_frames():
     Label(cover_frame, image=blank500).grid(row=0, column=0, padx=0, pady=0)
     Label(secret_frame, image=blank350).grid(row=0, column=0, padx=0, pady=0)
     Label(stego_frame, image=blank500).grid(row=0, column=0, padx=0, pady=0)
+    print("RESET ALL IMAGES TO BLANK")
 
 def zero_last_bit(image_path):
     img = Image.open(image_path)
     img_array = numpy.array(img)
     img_array = img_array & 0xFE
     modified_img = Image.fromarray(img_array)
+    print("ZERO'D LSB OF STEGO-IMAGE TO DISPLAY AS COVER")
     return modified_img
 
 def method_select(selection):
     global selected_method
     selected_method = selection
+    print("SELECTED METHOD: " + selection)
 
 def endec_mode_select(selection):
     global endec_mode
     endec_mode = selection
+    print("SELECTED MODE: " + selection)
 
 def pick_cover():
-    global cover_image_path, cover_path
-    if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" and endec_mode == "REVEAL"):
-        cover_path = askopenfilename()
-        cover_image = cover_path
-        with Image.open(cover_image).convert("RGB") as cover_image:
-            if cover_image.size != (1000, 1000):
-                cover_image = cover_image.resize((1000, 1000))
-        cover_image.save(temp_image_path[0])
-        global image_list
-        image_list[0] = cover_image 
-        cover_display = cover_image.resize((500, 500))
-        cover_display = ImageTk.PhotoImage(cover_display)
-        global display_list
-        display_list[0] = cover_display
-        Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
-    elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB":
-        cover_image_path = filedialog.askdirectory()    
+    try:
+        global cover_image_path, cover_path
+        if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" and endec_mode == "REVEAL"):
+            cover_path = askopenfilename()
+            cover_image = cover_path
+            with Image.open(cover_image).convert("RGB") as cover_image:
+                if cover_image.size != (1000, 1000):
+                    cover_image = cover_image.resize((1000, 1000))
+            cover_image.save(temp_image_path[0])
+            global image_list
+            image_list[0] = cover_image 
+            cover_display = cover_image.resize((500, 500))
+            cover_display = ImageTk.PhotoImage(cover_display)
+            global display_list
+            display_list[0] = cover_display
+            Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
+            print("COVER IMAGE SELECTED")
+        elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB":
+            cover_image_path = filedialog.askdirectory()  
+            print("COVER SAVE PATH SELECTED")
+    except Exception:
+        print("SELECT METHOD, MODE AND IMAGES")  
 
 def pick_secret():
-    if endec_mode == "CONCEAL": 
-        global secret_path
-        secret_path = askopenfilename()
-        secret_image = secret_path
-        with Image.open(secret_image).convert("RGB") as secret_image:
-            if secret_image.size != (350, 350):
-                secret_image = secret_image.resize((350, 350))
-        secret_image.save(temp_image_path[1])
-        global image_list
-        image_list[1] = secret_image
-        secret_display = ImageTk.PhotoImage(secret_image)
-        global display_list
-        display_list[1] = secret_display
-        Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-    elif endec_mode == "REVEAL":
-        global secret_image_path
-        secret_image_path = filedialog.askdirectory() 
+    try:
+        if endec_mode == "CONCEAL": 
+            global secret_path
+            secret_path = askopenfilename()
+            secret_image = secret_path
+            with Image.open(secret_image).convert("RGB") as secret_image:
+                if secret_image.size != (350, 350):
+                    secret_image = secret_image.resize((350, 350))
+            secret_image.save(temp_image_path[1])
+            global image_list
+            image_list[1] = secret_image
+            secret_display = ImageTk.PhotoImage(secret_image)
+            global display_list
+            display_list[1] = secret_display
+            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+            print("SECRET IMAGE SELECTED")
+        elif endec_mode == "REVEAL":
+            global secret_image_path
+            secret_image_path = filedialog.askdirectory()
+            print("SECRET SAVE PATH SELECTED")
+    except Exception:
+        print("SELECT METHOD, MODE AND IMAGES") 
 
 def pick_stego():
-    if endec_mode == "REVEAL": 
-        global stego_path
-        stego_path = askopenfilename()
-        stego_image = stego_path
-        with Image.open(stego_image).convert("RGB") as stego_image:
-            if stego_image.size != (1000, 1000):
-                stego_image = stego_image.resize((1000, 1000))
-        stego_image.save(temp_image_path[2])
-        global image_list
-        image_list[2] = stego_image 
-        stego_display = stego_image.resize((500, 500))
-        stego_display = ImageTk.PhotoImage(stego_display)
-        global display_list
-        display_list[2] = stego_display
-        Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
-    elif endec_mode == "CONCEAL":
-        global stego_image_path
-        stego_image_path = filedialog.askdirectory() 
+    try:
+        if endec_mode == "REVEAL": 
+            global stego_path
+            stego_path = askopenfilename()
+            stego_image = stego_path
+            with Image.open(stego_image).convert("RGB") as stego_image:
+                if stego_image.size != (1000, 1000):
+                    stego_image = stego_image.resize((1000, 1000))
+            stego_image.save(temp_image_path[2])
+            global image_list
+            image_list[2] = stego_image 
+            stego_display = stego_image.resize((500, 500))
+            stego_display = ImageTk.PhotoImage(stego_display)
+            global display_list
+            display_list[2] = stego_display
+            Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+            print("STEGO-IMAGE SELECTED")
+        elif endec_mode == "CONCEAL":
+            global stego_image_path
+            stego_image_path = filedialog.askdirectory() 
+            print("STEGO-IMAGE SAVE PATH SELECTED")
+    except Exception:
+        print("SELECT METHOD, MODE AND IMAGES")
 
 def go_activate():
-    global image_list
-    global display_list
-    global stego_image_path, secret_image_path, cover_image_path
-    global cover_path, secret_path, stego_path
+    try:
+        global image_list
+        global display_list
+        global stego_image_path, secret_image_path, cover_image_path
+        global cover_path, secret_path, stego_path
 
-    if selected_method == "v CHOOSE METHOD v": 
-        return
-    
-    elif selected_method == "M1 - AES + BLOWFISH ENCRYPTION":
-        if endec_mode == "CONCEAL":
-            AES_KEY = b'1234567890abcdef' 
-            AES_IV = b'abcdef1234567890'
-            BLOWFISH_KEY = b'12345678'
-            BLOWFISH_IV = b'abcdefgh' 
-            
-            with open(temp_image_path[1], 'rb') as f:
-                img_data = f.read()
-            
-            print("AES encryption")
-            aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
-            aes_encrypted = aes_cipher.encrypt(pad(img_data, AES.block_size))
-            
-            print("Blowfish encryption")
-            blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
-            blowfish_encrypted = blowfish_cipher.encrypt(pad(aes_encrypted, Blowfish.block_size))
-            print(blowfish_encrypted[-32:])
+        if selected_method == "v CHOOSE METHOD v": 
+            return
+        
+        elif selected_method == "M1 - AES + BLOWFISH ENCRYPTION":
+            if endec_mode == "CONCEAL":
+                AES_KEY = b'1234567890abcdef' 
+                AES_IV = b'abcdef1234567890'
+                BLOWFISH_KEY = b'12345678'
+                BLOWFISH_IV = b'abcdefgh' 
+                
+                with open(temp_image_path[1], 'rb') as f:
+                    img_data = f.read()
+                
+                print("ENCRYPTING WITH AES...")
+                aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
+                aes_encrypted = aes_cipher.encrypt(pad(img_data, AES.block_size))
+                
+                print("ENCRYPTING WITH BLOWFISH...")
+                blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
+                blowfish_encrypted = blowfish_cipher.encrypt(pad(aes_encrypted, Blowfish.block_size))
+                print(blowfish_encrypted[-32:])
 
-            with open("method-1/m-1_encrypted-secret.png", 'wb') as f:
-                f.write(blowfish_encrypted)
+                with open("method-1/m-1_encrypted-secret.png", 'wb') as f:
+                    f.write(blowfish_encrypted)
 
-            with open("method-1/m-1_encrypted-secret.png", "rb") as image:
-                encrypted_secret_string = base64.b64encode(image.read())
-            print(encrypted_secret_string[:32])
-            print(encrypted_secret_string[-32:])
-            print(len(encrypted_secret_string))
-            stego_image = lsb.hide(image_list[0], encrypted_secret_string + b'12')
-            
-            print("display")
-            stego_display = stego_image.resize((500, 500))
-            stego_display = ImageTk.PhotoImage(stego_display)
-            display_list[2] = stego_display
-            Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
-            
-            if stego_image_path:
-                stego_image.save(stego_image_path+"/method-1_stego-image.png")
-            else:
-                stego_image.save("method-1/m-1_stego-image.png")
-            
-
-        elif endec_mode == "REVEAL":
-            AES_KEY = b'1234567890abcdef' 
-            AES_IV = b'abcdef1234567890'
-            BLOWFISH_KEY = b'12345678' 
-            BLOWFISH_IV = b'abcdefgh' 
-            
-            encrypted_secret_string = lsb.reveal(temp_image_path[2])[2:]
-            print(encrypted_secret_string[:32])
-            print(encrypted_secret_string[-32:])
-            print(len(encrypted_secret_string))
-
-            missing_padding = len(encrypted_secret_string) % 4
-            if missing_padding:
-                encrypted_secret_string += '=' * (4 - missing_padding)
-            print(encrypted_secret_string[-32:])
-
-            imgdata = base64.b64decode(encrypted_secret_string)
-            extracted_secret = "method-1/m-1_extracted-secret.png"
-            with open(extracted_secret, 'wb') as f:
-                f.write(imgdata)
-
-            with open("method-1/m-1_extracted-secret.png", 'rb') as f:
-                encrypted_data = f.read()
-            
-            print(encrypted_data[-32:])
-            blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
-            blowfish_decrypted = unpad(blowfish_cipher.decrypt(encrypted_data), Blowfish.block_size)
-            
-            aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
-            aes_decrypted = unpad(aes_cipher.decrypt(blowfish_decrypted), AES.block_size)
-            
-            with open("method-1/m-1_decrypted-secret.png", 'wb') as f:
-                f.write(aes_decrypted)
-
-            with Image.open("method-1/m-1_decrypted-secret.png") as secret_image:
-                secret_display = ImageTk.PhotoImage(secret_image)
-            display_list[1] = secret_display
-            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-            
-            display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
-            Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
-
-    
-    elif selected_method == "M2 - ARNOLD'S CAT MAP":
-        if endec_mode == "CONCEAL":
-            iterations = 1
-            scrambled_secret = arnolds_cat_transform(image_list[1], iterations, 0)
-            
-            scrambled_display = ImageTk.PhotoImage(scrambled_secret)
-            display_list[1] = scrambled_display
-            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-            
-            scrambled_secret.save("method-2/m-2_scrambled-secret.png")
-            with open("method-2/m-2_scrambled-secret.png", "rb") as image:
-                scrambled_secret_string = base64.b64encode(image.read())
-            
-            stego_image = lsb.hide(image_list[0], scrambled_secret_string)
-            
-            stego_display = stego_image.resize((500, 500))
-            stego_display = ImageTk.PhotoImage(stego_display)
-            display_list[2] = stego_display
-            Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
-            
-            if stego_image_path:
-                stego_image.save(stego_image_path+"/method-2_stego-image.png")
-            else:
-                stego_image.save("method-2/m-2_stego-image.png")
-
-
-        elif endec_mode == "REVEAL":
-            iterations = 599
-            scrambled_secret_string = lsb.reveal(image_list[2])[2:]
-
-            missing_padding = len(scrambled_secret_string) % 4
-            if missing_padding:
-                scrambled_secret_string += '=' * (4 - missing_padding)
-
-            imgdata = base64.b64decode(scrambled_secret_string)
-            scrambled_image = "method-2/m-2_extracted-secret.png"
-            
-            with open(scrambled_image, 'wb') as f:
-                f.write(imgdata)
-
-            secret_image = arnolds_cat_transform(scrambled_image, iterations, 1)
-            image_list[1] = secret_image
-            secret_image.save("method-2/m-2_extracted-unscrambled-image.png")
-
-            secret_display = ImageTk.PhotoImage(secret_image)
-            display_list[1] = secret_display
-            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-
-            display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
-            Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
-    
-
-    elif selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB":
-        pvd_obj = pvd_lib()
-        if endec_mode == "CONCEAL":
-            print("m3 embed")
-            pvd_obj.pvd_embed(temp_image_path[0], temp_image_path[1], "method-3/m-3_stego-image.png")
-            
-            with Image.open("method-3/m-3_stego-image.png").convert("RGB") as stego_image:
+                print("CONVERTING SECRET TO BYTES...")
+                with open("method-1/m-1_encrypted-secret.png", "rb") as image:
+                    encrypted_secret_string = base64.b64encode(image.read())
+                #print(encrypted_secret_string[:32])
+                #print(encrypted_secret_string[-32:])
+                #print(len(encrypted_secret_string))
+                print("CONCEALING SECRET IN COVER WITH LSB...")
+                stego_image = lsb.hide(image_list[0], encrypted_secret_string + b'12')
+                
+                print("DISPLAYING STEGO-IMAGE")
                 stego_display = stego_image.resize((500, 500))
                 stego_display = ImageTk.PhotoImage(stego_display)
+                display_list[2] = stego_display
+                Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+                
+                print("SAVING STEGO-IMAGE...")
                 if stego_image_path:
-                    stego_image.save(stego_image_path)
-            display_list[2] = stego_display
-            Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+                    stego_image.save(stego_image_path+"/method-1_stego-image.png")
+                else:
+                    stego_image.save("method-1/m-1_stego-image.png")
+                print("DONE")
+                
 
-        elif endec_mode == "REVEAL":
-            print("m3 extract")
-            pvd_obj.pvd_extract(temp_image_path[0], "method-3/m-3_secret-image.png", temp_image_path[2])
+            elif endec_mode == "REVEAL":
+                AES_KEY = b'1234567890abcdef' 
+                AES_IV = b'abcdef1234567890'
+                BLOWFISH_KEY = b'12345678' 
+                BLOWFISH_IV = b'abcdefgh' 
+                
+                print("REVEALING SECRET FROM COVER USING LSB...")
+                encrypted_secret_string = lsb.reveal(temp_image_path[2])[2:]
+                #print(encrypted_secret_string[:32])
+                #print(encrypted_secret_string[-32:])
+                #print(len(encrypted_secret_string))
 
-            with Image.open("method-3/m-3_secret-image.png").convert("RGB") as secret_image:
-                secret_display = secret_image.resize((350, 350))
-                secret_display = ImageTk.PhotoImage(secret_display)
+                print("PADDING DATA...")
+                missing_padding = len(encrypted_secret_string) % 4
+                if missing_padding:
+                    encrypted_secret_string += '=' * (4 - missing_padding)
+                #print(encrypted_secret_string[-32:])
+
+                print("CONVERTING SECRET FROM BYTES...")
+                imgdata = base64.b64decode(encrypted_secret_string)
+                extracted_secret = "method-1/m-1_extracted-secret.png"
+                with open(extracted_secret, 'wb') as f:
+                    f.write(imgdata)
+
+                with open("method-1/m-1_extracted-secret.png", 'rb') as f:
+                    encrypted_data = f.read()
+                
+                #print(encrypted_data[-32:])
+                print("DECRYPTING BLOWFISH...")
+                blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
+                blowfish_decrypted = unpad(blowfish_cipher.decrypt(encrypted_data), Blowfish.block_size)
+                
+                print("DECRYPTING AES...")
+                aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
+                aes_decrypted = unpad(aes_cipher.decrypt(blowfish_decrypted), AES.block_size)
+                
+                with open("method-1/m-1_decrypted-secret.png", 'wb') as f:
+                    f.write(aes_decrypted)
+                
+                print("DISPLAYING SECRET & COVER [WITH 0 LSB]")
+                with Image.open("method-1/m-1_decrypted-secret.png") as secret_image:
+                    secret_display = ImageTk.PhotoImage(secret_image)
+                display_list[1] = secret_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+                
+                display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
+                Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
+                
+                print("SAVING SECRET...")
                 if secret_image_path:
-                    secret_image.save(secret_image_path)
-            display_list[1] = secret_display
-            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-            
-    
-    elif selected_method == "M4 - DCT TABLE MODIFICATION":
-        if endec_mode == "CONCEAL":
-            print("put function(cover, secret) here")
-        elif endec_mode == "REVEAL":
-            print("put function(stego) here")
-    
-    elif selected_method == "M5 - STEGO-IMAGE DECOLORIZATION":
-        if endec_mode == "CONCEAL":
-            print("put function(cover, secret) here")
-        elif endec_mode == "REVEAL":
-            print("put function(stego) here")
-    
+                    secret_image.save(stego_image_path+"/method-1_decrypted-secret.png")
+                else:
+                    secret_image.save("method-1/m-1_decrypted-secret.png")
+                print("DONE")
 
-    elif selected_method == "W1 - ARNOLD'S CAT MAP + ENCRYPTION":
-        if endec_mode == "CONCEAL":
-            AES_KEY = b'1234567890abcdef' 
-            AES_IV = b'abcdef1234567890' 
-            BLOWFISH_KEY = b'12345678' 
-            BLOWFISH_IV = b'abcdefgh'
+        
+        elif selected_method == "M2 - ARNOLD'S CAT MAP":
+            if endec_mode == "CONCEAL":
+                iterations = 1
+                print("APPLYING ARNOLD'S CAT MAP...")
+                scrambled_secret = arnolds_cat_transform(image_list[1], iterations, 0)
+                
+                print("DISPLAYING SCRAMBLED SECRET")
+                scrambled_display = ImageTk.PhotoImage(scrambled_secret)
+                display_list[1] = scrambled_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+                
+                print("CONVERTING SECRET TO BYTES...")
+                scrambled_secret.save("method-2/m-2_scrambled-secret.png")
+                with open("method-2/m-2_scrambled-secret.png", "rb") as image:
+                    scrambled_secret_string = base64.b64encode(image.read())
+                
+                print("CONCEALING SECRET IN COVER USING LSB...")
+                stego_image = lsb.hide(image_list[0], scrambled_secret_string)
+                
+                print("DISPLAYING STEGO-IMAGE")
+                stego_display = stego_image.resize((500, 500))
+                stego_display = ImageTk.PhotoImage(stego_display)
+                display_list[2] = stego_display
+                Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+                
+                print("SAVING STEGO-IMAGE...")
+                if stego_image_path:
+                    stego_image.save(stego_image_path+"/method-2_stego-image.png")
+                else:
+                    stego_image.save("method-2/m-2_stego-image.png")
+                print("DONE")
 
-            print("arnold scramble image")
-            iterations = 1
-            scrambled_secret = arnolds_cat_transform(image_list[1], iterations, 0)
-            
-            scrambled_display = ImageTk.PhotoImage(scrambled_secret)
-            display_list[1] = scrambled_display
-            Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
-            
-            scrambled_secret.save("method-w1/m-w1_scrambled-secret.png")
-            
-            with open("method-w1/m-w1_scrambled-secret.png", 'rb') as f:
-                img_data = f.read()
-            
-            aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
-            aes_encrypted = aes_cipher.encrypt(pad(img_data, AES.block_size))
-            
-            blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
-            blowfish_encrypted = blowfish_cipher.encrypt(pad(aes_encrypted, Blowfish.block_size))
-            
-            with open("method-w1/m-w1_scrambled-encrypted-secret.png", 'wb') as f:
-                f.write(blowfish_encrypted)
+            elif endec_mode == "REVEAL":
+                iterations = 599
+                print("REVEALING SECRET FROM COVER USING LSB...")
+                scrambled_secret_string = lsb.reveal(image_list[2])[2:]
 
-            with open("method-w1/m-w1_scrambled-encrypted-secret.png", "rb") as image:
-                encrypted_secret_string = base64.b64encode(image.read())
-            stego_image = lsb.hide(image_list[0], encrypted_secret_string)
-            
-            stego_display = stego_image.resize((500, 500))
-            stego_display = ImageTk.PhotoImage(stego_display)
-            display_list[2] = stego_display
-            Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
-            
-            if stego_image_path:
-                stego_image.save(stego_image_path+"/method-w1_stego-image.png")
-            else:
-                stego_image.save("method-w1/m-w1_stego-image.png")
+                print("PADDING DATA...")
+                missing_padding = len(scrambled_secret_string) % 4
+                if missing_padding:
+                    scrambled_secret_string += '=' * (4 - missing_padding)
 
-        elif endec_mode == "REVEAL":
-            print("put function(stego) here")
-    
+                print("CONVERTING SECRET FROM BYTES...")
+                imgdata = base64.b64decode(scrambled_secret_string)
+                scrambled_image = "method-2/m-2_extracted-scrambled-secret.png"
+                
+                with open(scrambled_image, 'wb') as f:
+                    f.write(imgdata)
 
-    elif selected_method == "W2 - ???":
-        if endec_mode == "CONCEAL":
-            print("put function(cover, secret) here")
-        elif endec_mode == "REVEAL":
-            print("put function(stego) here")
-    
-    if endec_mode == "CONCEAL":
-        print("save stego image and display in its frame") 
-    elif endec_mode == "REVEAL":
-        print("save secret and display it with cover in their frames")
+                print("UN-SCRAMBLING ARNOLD'S CAT MAP [THIS MIGHT TAKE A WHILE]")
+                secret_image = arnolds_cat_transform(scrambled_image, iterations, 1)
+                image_list[1] = secret_image
+                
+
+                print("DISPLAYING SECRET & COVER [WITH 0 LSB]")
+                secret_display = ImageTk.PhotoImage(secret_image)
+                display_list[1] = secret_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+
+                display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
+                Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING SECRET...")
+                if secret_image_path:
+                    secret_image.save(stego_image_path+"/method-2_descrambled-secret.png")
+                else:
+                    secret_image.save("method-2/m-2_descrambled-secret.png")
+                print("DONE")
+
+        elif selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB":
+            pvd_obj = pvd_lib()
+            if endec_mode == "CONCEAL":
+                print("EMBEDDING SECRET IN COVER USING PVD LSB...")
+                pvd_obj.pvd_embed(temp_image_path[0], temp_image_path[1], "method-3/m-3_stego-image.png")
+                
+                with Image.open("method-3/m-3_stego-image.png").convert("RGB") as stego_image:
+                    stego_display = stego_image.resize((500, 500))
+                    stego_display = ImageTk.PhotoImage(stego_display)
+
+                print("DISPLAYING STEGO-IMAGE")
+                display_list[2] = stego_display
+                Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING STEGO-IMAGE...")
+                if stego_image_path:
+                    stego_image.save(stego_image_path+"/method-3_stego-image.png")
+                else:
+                    stego_image.save("method-3/m-3_stego-image.png")
+                print("DONE")
+
+            elif endec_mode == "REVEAL":
+                print("EXTRACTING SECRET FROM STEGO-IMAGE BY COMPARING WITH COVER USING PVD LSB...")
+                pvd_obj.pvd_extract(temp_image_path[0], "method-3/m-3_secret-image.png", temp_image_path[2])
+
+                with Image.open("method-3/m-3_secret-image.png").convert("RGB") as secret_image:
+                    secret_display = secret_image.resize((350, 350))
+                    secret_display = ImageTk.PhotoImage(secret_display)
+                    if secret_image_path:
+                        secret_image.save(secret_image_path)
+                print("DISPLAYING SECRET")
+                display_list[1] = secret_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING SECRET...")
+                if secret_image_path:
+                    secret_image.save(stego_image_path+"/method-3_extracted-secret.png")
+                else:
+                    secret_image.save("method-3/m-3_extracted-secret.png")
+                print("DONE")
+                
+        
+        elif selected_method == "M4 - DCT TABLE MODIFICATION":
+            if endec_mode == "CONCEAL":
+                print("put function(cover, secret) here")
+            elif endec_mode == "REVEAL":
+                print("put function(stego) here")
+        
+        elif selected_method == "M5 - STEGO-IMAGE DECOLORIZATION":
+            if endec_mode == "CONCEAL":
+                print("put function(cover, secret) here")
+            elif endec_mode == "REVEAL":
+                print("put function(stego) here")
+        
+
+        elif selected_method == "W1 - ARNOLD'S CAT MAP + ENCRYPTION":
+            if endec_mode == "CONCEAL":
+                AES_KEY = b'1234567890abcdef' 
+                AES_IV = b'abcdef1234567890' 
+                BLOWFISH_KEY = b'12345678' 
+                BLOWFISH_IV = b'abcdefgh'
+
+                print("APPLYING ARNOLD'S CAT MAP...")
+                iterations = 1
+                scrambled_secret = arnolds_cat_transform(image_list[1], iterations, 0)
+                
+                print("DISPLAYING SCRAMBLED SECRET")
+                scrambled_display = ImageTk.PhotoImage(scrambled_secret)
+                display_list[1] = scrambled_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+                
+                scrambled_secret.save("method-w1/m-w1_scrambled-secret.png")
+                
+                with open("method-w1/m-w1_scrambled-secret.png", 'rb') as f:
+                    img_data = f.read()
+                
+                print("ENCRYPTING WITH AES...")
+                aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
+                aes_encrypted = aes_cipher.encrypt(pad(img_data, AES.block_size))
+                
+                print("ENCRYPTING WITH BLOWFISH...")
+                blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
+                blowfish_encrypted = blowfish_cipher.encrypt(pad(aes_encrypted, Blowfish.block_size))
+                
+                with open("method-w1/m-w1_scrambled-encrypted-secret.png", 'wb') as f:
+                    f.write(blowfish_encrypted)
+
+                print("CONVERTING SECRET TO BYTES...")
+                with open("method-w1/m-w1_scrambled-encrypted-secret.png", "rb") as image:
+                    encrypted_secret_string = base64.b64encode(image.read())
+                print(encrypted_secret_string[:32])
+                print(encrypted_secret_string[-32:])
+                print(len(encrypted_secret_string))
+                print("CONCEALING SECRET IN COVER USING LSB...")
+                stego_image = lsb.hide(image_list[0], encrypted_secret_string + b'12')
+                
+                print("DISPLAYING STEGO-IMAGE")
+                stego_display = stego_image.resize((500, 500))
+                stego_display = ImageTk.PhotoImage(stego_display)
+                display_list[2] = stego_display
+                Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+                
+                print("SAVING STEGO-IMAGE...")
+                if stego_image_path:
+                    stego_image.save(stego_image_path+"/method-w1_stego-image.png")
+                else:
+                    stego_image.save("method-w1/m-w1_stego-image.png")
+                print("DONE")
+
+            elif endec_mode == "REVEAL":
+                iterations = 599
+                AES_KEY = b'1234567890abcdef' 
+                AES_IV = b'abcdef1234567890'
+                BLOWFISH_KEY = b'12345678' 
+                BLOWFISH_IV = b'abcdefgh' 
+                
+                print("REVEALING SECRET...")
+                encrypted_secret_string = lsb.reveal(temp_image_path[2])[2:]
+                print(encrypted_secret_string[:32])
+                print(encrypted_secret_string[-32:])
+                print(len(encrypted_secret_string))
+
+                missing_padding = len(encrypted_secret_string) % 4
+                if missing_padding:
+                    encrypted_secret_string += '=' * (4 - missing_padding)
+                #print(encrypted_secret_string[-32:])
+
+                imgdata = base64.b64decode(encrypted_secret_string)
+                extracted_secret = "method-1/m-w1_extracted-secret.png"
+                with open(extracted_secret, 'wb') as f:
+                    f.write(imgdata)
+
+                with open("method-1/m-w1_extracted-secret.png", 'rb') as f:
+                    encrypted_data = f.read()
+                
+                #print(encrypted_data[-32:])
+                print("DECRYPTING BLOWFISH...")
+                blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
+                blowfish_decrypted = unpad(blowfish_cipher.decrypt(encrypted_data), Blowfish.block_size)
+                
+                print("DECRYPTING AES...")
+                aes_cipher = AES.new(AES_KEY, AES.MODE_CBC, AES_IV)
+                aes_decrypted = unpad(aes_cipher.decrypt(blowfish_decrypted), AES.block_size)
+                
+                with open("method-1/m-w1_decrypted-secret.png", 'wb') as f:
+                    f.write(aes_decrypted)
+
+                with Image.open("method-1/m-w1_decrypted-secret.png") as scrambled_image:
+                    print("UN-SCRAMBLING ARNOLD'S CAT MAP [THIS MIGHT TAKE A WHILE]")
+                    secret_image = arnolds_cat_transform(scrambled_image, iterations, 0)
+                
+                image_list[1] = secret_image
+                secret_display = ImageTk.PhotoImage(secret_image)
+
+                print("DISPLAYING SECRET & COVER [WITH 0 LSB]")
+                display_list[1] = secret_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+                
+                display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
+                Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
+        
+                print("SAVING SECRET...")
+                if secret_image_path:
+                    secret_image.save(stego_image_path+"/method-w1_descrambled-secret.png")
+                else:
+                    secret_image.save("method-w1/m-w1_descrambled-secret.png")
+                print("DONE")
+
+        elif selected_method == "W2 - ???":
+            if endec_mode == "CONCEAL":
+                print("put function(cover, secret) here")
+            elif endec_mode == "REVEAL":
+                print("put function(stego) here")
+        
+        print("SELECT NEW IMAGES TO RUN AGAIN")
+    except NameError:
+        print("SELECT METHOD, MODE AND IMAGES")
+
 
 
 def help_info():
     if selected_method == "v CHOOSE METHOD v": 
         help_popup= Toplevel(root)
-        help_popup.minsize(500, 300)  # width, height
-        help_popup.maxsize(500, 300)
-        help_popup.geometry("500x300+500+280")
+        help_popup.minsize(500, 320)  # width, height
+        help_popup.maxsize(500, 320)
+        help_popup.geometry("500x320+500+280")
         help_popup.title("HELP & INFO")
         Label(help_popup, text="""\n
             This is a programme for Image-in-Image steganography. 
-            Programmed by: Konrad Mięsowski & Szymon Maciejewski\n
-            'CHOOSE METHOD' drop-down list contains the available methods.
-            'CHOOSE MODE' toggles between concealing/revealing the secret.
-            'GO' runs the selected method in the selected mode.\n
+            Programmed by Konrad Mięsowski & Szymon Maciejewski\n
+            [CHOOSE METHOD] - drop-down list contains the available methods.
+            [CHOOSE MODE] - toggles between concealing/revealing the secret.
+            [+RUN+] - runs the selected method in the selected mode.
+            [-CLEAR-] - clears all displayed images. \n
             To select images to use, click on the button above each frame:\n
             In 'CONCEAL' mode you select the cover & secret file,
             and optionally the save location for the stego-image.\n
             In 'REVEAL' mode you select the stego-image file,
-            and optionally the save location for the cover & revealed secret.\n
-            Window app design & programming by Konrad Mięsowski.""",
+            and optionally the save location for the revealed secret.\n
+            Window app design & programming by Konrad Mięsowski""",
              justify="left").place(relx=-0.05, rely=0.45, anchor=W)
     
     elif selected_method == "M1 - AES + BLOWFISH ENCRYPTION":
@@ -385,8 +521,8 @@ def help_info():
         help_popup.title("HELP & INFO - Method 1")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
-            Programmed by: Konrad Mięsowski & Szymon Maciejewski\n
-            Method 1: 'AES + Blowfish encryption'
+            Programmed by Konrad Mięsowski & Szymon Maciejewski\n
+            Method 1: AES + Blowfish encryption
             Implemented by Konrad Mięsowski\n
             This method encrypts the secret image using AES and Blowfish.
             The secret is concealed within the cover using typical LSB methods.\n
@@ -403,8 +539,8 @@ def help_info():
         help_popup.title("HELP & INFO - Method 2")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
-            Programmed by: Konrad Mięsowski & Szymon Maciejewski\n
-            Method 2: Arnold's cat map
+            Programmed by Konrad Mięsowski & Szymon Maciejewski\n
+            Method 2: Arnold's Cat Map
             Implemented by Konrad Mięsowski\n
             This method scrambles the secret using Arnold's cat map.
             The secret is concealed within the cover using typical LSB methods.\n
@@ -423,11 +559,12 @@ def help_info():
         help_popup.title("HELP & INFO - Method 3")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
-            Programmed by: Konrad Mięsowski & Szymon Maciejewski\n
+            Programmed by Konrad Mięsowski & Szymon Maciejewski\n
             Method 3: Pixel Value Difference LSB
             Implemented by Szymon Maciejewski\n
             This method utilizes Pixel Value Difference LSB, which conceals more
-            of the secret's data within areas of higher contrast in the cover.\n
+            of the secret's data within areas of higher contrast in the cover.
+            IMPORTANT: TO REVEAL SECRET FROM STEGO-IMAGE, PROVIDE COVER!\n
             Based on: Prof. Sridhar R., Sahana S. U., Ananya Desai S., Aishwarya MS.,  
             Akshitha S.; “The Image Steganography Using LSB And PVD Algorithms”; 
             IJRAR May 2023, Volume 10, Issue 2""",
@@ -441,8 +578,8 @@ def help_info():
         help_popup.title("HELP & INFO - Method 4")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
-            Programmed by: Konrad Mięsowski & Szymon Maciejewski\n
-            Method 5: Decolorization [& Recolorization]
+            Programmed by Konrad Mięsowski & Szymon Maciejewski\n
+            Method 4: DCT Table Modification
             Implemented by Szymon Maciejewski\n
             This method uses modified DCT on pre-divided sections of the secret, 
             then quantizes the fragments before concealing the secret within 
@@ -461,7 +598,7 @@ def help_info():
         help_popup.title("HELP & INFO - Method 5")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
-            Programmed by: Konrad Mięsowski & Szymon Maciejewski\n
+            Programmed by Konrad Mięsowski & Szymon Maciejewski\n
             Method 5: Decolorization & Recolorization
             Implemented by Szymon Maciejewski\n
             The secret is concealed within the cover using typical LSB methods;
@@ -473,7 +610,7 @@ def help_info():
             VOL. 71, NO. 1, JANUARY 2024; DOI:10.1109/TCSII.2023.3300330""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
-    elif selected_method == "W1 - ENCRYPTION + ARNOLD'S CAT MAP":
+    elif selected_method == "W1 - ARNOLD'S CAT MAP + ENCRYPTION":
         help_popup= Toplevel(root)
         help_popup.minsize(500, 240)  # width, height
         help_popup.maxsize(500, 240)
@@ -481,8 +618,8 @@ def help_info():
         help_popup.title("HELP & INFO - Method W1")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
-            Programmed by: Konrad Mięsowski & Szymon Maciejewski\n
-            Method W1: Encryption + Arnold's cat map
+            Programmed by Konrad Mięsowski & Szymon Maciejewski\n
+            Method W1: Encryption + Arnold's Cat Map
             Implemented by Konrad Mięsowski\n
             This method is a combination of Method 1 & 2; the secret is first
             scrambled using Arnold's cat map, then encrypted using AES & Blowfish.
@@ -498,8 +635,8 @@ def help_info():
         help_popup.title("HELP & INFO - Method W2")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
-            Programmed by: Konrad Mięsowski & Szymon Maciejewski\n
-            Method 5: Decolorization [& Recolorization]
+            Programmed by Konrad Mięsowski & Szymon Maciejewski\n
+            Method W2: ???
             Implemented by Szymon Maciejewski\n
             TEXT GOES HERE""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
@@ -549,7 +686,7 @@ method_set = ["v CHOOSE METHOD v",
               "M3 - PIXEL VALUE DIFFERENCE LSB",
               "M4 - DCT TABLE MODIFICATION",
               "M5 - STEGO-IMAGE DECOLORIZATION",
-              "W1 - ENCRYPTION + ARNOLD'S CAT MAP",
+              "W1 - ARNOLD'S CAT MAP + ENCRYPTION",
               "W2 - ???"] 
 
 method = StringVar(root)
