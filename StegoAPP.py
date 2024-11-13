@@ -26,13 +26,6 @@ temp_image_path = ["temp/cover-image-temp.png", "temp/secret-image_temp.png", "t
 global display_list
 display_list = ["cover-display", "secret-display", "stego-display"]
 
-global blank_images
-blank_images = ["temp/blank500.png", "temp/blank350.png"]
-with Image.open(blank_images[0]).convert("RGB") as blank500:
-    blank_images[0] = blank500
-with Image.open(blank_images[1]).convert("RGB") as blank350:
-    blank_images[1] = blank350
-
 global cover_image_path, secret_image_path, stego_image_path
 cover_image_path = 0
 secret_image_path = 0
@@ -40,6 +33,11 @@ stego_image_path = 0
 
 global cover_path, secret_path, stego_path
 
+
+def reset_frames():
+    Label(cover_frame, image=blank500).grid(row=0, column=0, padx=0, pady=0)
+    Label(secret_frame, image=blank350).grid(row=0, column=0, padx=0, pady=0)
+    Label(stego_frame, image=blank500).grid(row=0, column=0, padx=0, pady=0)
 
 def zero_last_bit(image_path):
     img = Image.open(image_path)
@@ -575,12 +573,18 @@ endec.set(endec_set[0]) # default value
 endec_options = OptionMenu(endec_frame, endec, *endec_set, command=endec_mode_select)
 endec_options.pack()
 
-## ACTION BUTTON
-action_frame = Frame(middle_frame, width=50, height=10)
-action_frame.grid(row=4, column=0, padx=0, pady=1)
-action_button = Button(action_frame, text="GO", bg="yellow",
+## BUTTONS
+button_frame = Frame(middle_frame, width=50, height=10)
+button_frame.grid(row=4, column=0, padx=0, pady=1)
+
+action_button = Button(button_frame, text="+ RUN +", bg="green",
                        command=go_activate)
-action_button.pack()
+action_button.pack(side=LEFT, padx=10)
+
+reset_button = Button(button_frame, text="- CLEAR -", bg="red",
+                       command=reset_frames)
+reset_button.pack(side=RIGHT, padx=10)
+
 
 ## SECRET
 secret_select_frame = Frame(middle_frame, width=50, height=10)
@@ -608,9 +612,13 @@ stego_select_button.pack()
 stego_frame = Frame(right_frame, width=502, height=502, bg="gray")
 stego_frame.grid(row=2, column=0, padx=5, pady=5)
 
-Label(cover_frame, image=blank_images[0]).grid(row=0, column=0, padx=0, pady=0)
-Label(secret_frame, image=blank_images[1]).grid(row=0, column=0, padx=0, pady=0)
-Label(stego_frame, image=blank_images[0]).grid(row=0, column=0, padx=0, pady=0)
+global blank350, blank500
+blank350 = PhotoImage(file="temp/blank350.png")
+blank500 = PhotoImage(file="temp/blank500.png")
+
+Label(cover_frame, image=blank500).grid(row=0, column=0, padx=0, pady=0)
+Label(secret_frame, image=blank350).grid(row=0, column=0, padx=0, pady=0)
+Label(stego_frame, image=blank500).grid(row=0, column=0, padx=0, pady=0)
 
 root.mainloop()
 
