@@ -133,16 +133,17 @@ def go_activate():
             print("Blowfish encryption")
             blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
             blowfish_encrypted = blowfish_cipher.encrypt(pad(aes_encrypted, Blowfish.block_size))
-            #print(blowfish_encrypted[-32:])
+            print(blowfish_encrypted[-32:])
 
             with open("method-1/m-1_encrypted-secret.png", 'wb') as f:
                 f.write(blowfish_encrypted)
 
             with open("method-1/m-1_encrypted-secret.png", "rb") as image:
                 encrypted_secret_string = base64.b64encode(image.read())
-            #print(encrypted_secret_string[-32:])
+            print(encrypted_secret_string[:32])
+            print(encrypted_secret_string[-32:])
             print(len(encrypted_secret_string))
-            stego_image = lsb.hide(image_list[0], encrypted_secret_string)
+            stego_image = lsb.hide(image_list[0], encrypted_secret_string + b'12')
             
             print("display")
             stego_display = stego_image.resize((500, 500))
@@ -163,13 +164,14 @@ def go_activate():
             BLOWFISH_IV = b'abcdefgh' 
             
             encrypted_secret_string = lsb.reveal(temp_image_path[2])[2:]
-            #print(len(encrypted_secret_string))
-            #print(encrypted_secret_string[-32:])
+            print(encrypted_secret_string[:32])
+            print(encrypted_secret_string[-32:])
+            print(len(encrypted_secret_string))
 
             missing_padding = len(encrypted_secret_string) % 4
             if missing_padding:
                 encrypted_secret_string += '=' * (4 - missing_padding)
-            #print(encrypted_secret_string[-32:])
+            print(encrypted_secret_string[-32:])
 
             imgdata = base64.b64decode(encrypted_secret_string)
             extracted_secret = "method-1/m-1_extracted-secret.png"
@@ -179,7 +181,7 @@ def go_activate():
             with open("method-1/m-1_extracted-secret.png", 'rb') as f:
                 encrypted_data = f.read()
             
-            #print(encrypted_data[-32:])
+            print(encrypted_data[-32:])
             blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
             blowfish_decrypted = unpad(blowfish_cipher.decrypt(encrypted_data), Blowfish.block_size)
             
