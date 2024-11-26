@@ -6,11 +6,14 @@ from stegano import lsb
 from random import randrange
 from method_2 import arnolds_cat_transform
 from pvd_lib import pvd_lib
+from lsb_lib import extract_secret_image
+from lsb_lib import embed_secret_image
 from Crypto.Cipher import AES
 from Crypto.Cipher import Blowfish
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
 from Crypto.Util import Counter
+from huffman_lib import HuffmanCoding
 import base64
 import numpy
 import io
@@ -61,7 +64,7 @@ def endec_mode_select(selection):
 def pick_cover():
     try:
         global cover_image_path, cover_path
-        if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" and endec_mode == "REVEAL"):
+        if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" or "M4 - HUFFMAN COMPRESSION" or "M5 - K-LEAST SIGNIFICANT BITS ENCODING" or "W2 - HUFFMAN + PVD" and endec_mode == "REVEAL"):
             cover_path = askopenfilename()
             cover_image = cover_path
             with Image.open(cover_image).convert("RGB") as cover_image:
@@ -76,7 +79,7 @@ def pick_cover():
             display_list[0] = cover_display
             Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
             print("COVER IMAGE SELECTED")
-        elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB":
+        elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB" or "M4 - HUFFMAN COMPRESSION" or "M5 - K-LEAST SIGNIFICANT BITS ENCODING" or "W2 - HUFFMAN + PVD":
             cover_image_path = filedialog.askdirectory()  
             print("COVER SAVE PATH SELECTED")
     except Exception:
@@ -311,10 +314,10 @@ def go_activate():
                     secret_image.save("method-2/m-2_descrambled-secret.png")
                 print("DONE")
 
-        elif selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB":
+        elif selected_method == "M3 - PIXEL VALUE DIFFERENCE":
             pvd_obj = pvd_lib()
             if endec_mode == "CONCEAL":
-                print("EMBEDDING SECRET IN COVER USING PVD LSB...")
+                print("EMBEDDING SECRET IN COVER USING PVD...")
                 pvd_obj.pvd_embed(temp_image_path[0], temp_image_path[1], "method-3/m-3_stego-image.png")
                 
                 with Image.open("method-3/m-3_stego-image.png").convert("RGB") as stego_image:
@@ -333,7 +336,7 @@ def go_activate():
                 print("DONE")
 
             elif endec_mode == "REVEAL":
-                print("EXTRACTING SECRET FROM STEGO-IMAGE BY COMPARING WITH COVER USING PVD LSB...")
+                print("EXTRACTING SECRET FROM STEGO-IMAGE BY COMPARING WITH COVER USING PVD...")
                 pvd_obj.pvd_extract(temp_image_path[0], "method-3/m-3_secret-image.png", temp_image_path[2])
 
                 with Image.open("method-3/m-3_secret-image.png").convert("RGB") as secret_image:
@@ -353,17 +356,95 @@ def go_activate():
                 print("DONE")
                 
         
-        elif selected_method == "M4 - DCT TABLE MODIFICATION":
+        elif selected_method == "M4 - HUFFMAN COMPRESSION":
+            pvd_obj = pvd_lib()
             if endec_mode == "CONCEAL":
-                print("put function(cover, secret) here")
+                pvd_obj.pvd_embed(temp_image_path[0], temp_image_path[1], "method-4/m-4_stego-image.png")
+
+                with Image.open("method-4/m-4_stego-image.png").convert("RGB") as stego_image:
+                    stego_display = stego_image.resize((500, 500))
+                    stego_display = ImageTk.PhotoImage(stego_display)
+
+                print("DISPLAYING STEGO-IMAGE")
+                display_list[2] = stego_display
+                Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING STEGO-IMAGE...")
+                if stego_image_path:
+                    stego_image.save(stego_image_path+"/method-4_stego-image.png")
+                else:
+                    stego_image.save("method-4/m-4_stego-image.png")
+                
+                print("DONE")
+
+
             elif endec_mode == "REVEAL":
-                print("put function(stego) here")
+                print("REVEALING SECRET FROM COVER USING LSB...")
+                pvd_obj.pvd_extract(temp_image_path[0], "method-4/m-4_secret-image.png", temp_image_path[2])
+                print("SAVING SECRET...")
+                print("PADDING DATA...")
+                print("CONVERTING SECRET FROM BYTES...")
+                print("DISPLAYING SECRET & COVER [WITH 0 LSB]")
+                with Image.open("method-4/m-4_secret-image.png").convert("RGB") as secret_image:
+                    secret_display = secret_image.resize((350, 350))
+                    secret_display = ImageTk.PhotoImage(secret_display)
+                    if secret_image_path:
+                        secret_image.save(secret_image_path)
+                print("DISPLAYING SECRET")
+                display_list[1] = secret_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING SECRET...")
+                if secret_image_path:
+                    secret_image.save(stego_image_path+"/method-4_extracted-secret.png")
+                else:
+                    secret_image.save("method-4/m-4_extracted-secret.png")
+                print("DONE")
         
-        elif selected_method == "M5 - STEGO-IMAGE DECOLORIZATION":
+        elif selected_method == "M5 - K-LEAST SIGNIFICANT BITS ENCODING":
+            pvd_obj = pvd_lib()
             if endec_mode == "CONCEAL":
-                print("put function(cover, secret) here")
+                pvd_obj.pvd_embed(temp_image_path[0], temp_image_path[1], "method-5/m-5_stego-image.png")
+
+                with Image.open("method-5/m-5_stego-image.png").convert("RGB") as stego_image:
+                    stego_display = stego_image.resize((500, 500))
+                    stego_display = ImageTk.PhotoImage(stego_display)
+
+                print("DISPLAYING STEGO-IMAGE")
+                display_list[2] = stego_display
+                Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING STEGO-IMAGE...")
+                if stego_image_path:
+                    stego_image.save(stego_image_path+"/method-5_stego-image.png")
+                else:
+                    stego_image.save("method-5/m-5_stego-image.png")
+                
+                print("DONE")
+
+
             elif endec_mode == "REVEAL":
-                print("put function(stego) here")
+                print("REVEALING SECRET FROM COVER USING LSB...")
+                pvd_obj.pvd_extract(temp_image_path[0], "method-5/m-5_secret-image.png", temp_image_path[2])
+                print("SAVING SECRET...")
+                print("PADDING DATA...")
+                print("CONVERTING SECRET FROM BYTES...")
+                print("DISPLAYING SECRET & COVER [WITH 0 LSB]")
+                with Image.open("method-5/m-5_secret-image.png").convert("RGB") as secret_image:
+                    secret_display = secret_image.resize((350, 350))
+                    secret_display = ImageTk.PhotoImage(secret_display)
+                    if secret_image_path:
+                        secret_image.save(secret_image_path)
+                print("DISPLAYING SECRET")
+                display_list[1] = secret_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING SECRET...")
+                if secret_image_path:
+                    secret_image.save(stego_image_path+"/method-5_extracted-secret.png")
+                else:
+                    secret_image.save("method-5/m-5_extracted-secret.png")
+                print("DONE")
         
 
         elif selected_method == "W1 - ARNOLD'S CAT MAP + ENCRYPTION":
@@ -479,11 +560,50 @@ def go_activate():
                     secret_image.save("method-w1/m-w1_descrambled-secret.png")
                 print("DONE")
 
-        elif selected_method == "W2 - ???":
+        elif selected_method == "W2 - HUFFMAN + PVD":
+            pvd_obj = pvd_lib()
             if endec_mode == "CONCEAL":
-                print("put function(cover, secret) here")
+                pvd_obj.pvd_embed(temp_image_path[0], temp_image_path[1], "method-w2/m-w2_stego-image.png")
+
+                with Image.open("method-w2/m-w2_stego-image.png").convert("RGB") as stego_image:
+                    stego_display = stego_image.resize((500, 500))
+                    stego_display = ImageTk.PhotoImage(stego_display)
+
+                print("DISPLAYING STEGO-IMAGE")
+                display_list[2] = stego_display
+                Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING STEGO-IMAGE...")
+                if stego_image_path:
+                    stego_image.save(stego_image_path+"/method-w2_stego-image.png")
+                else:
+                    stego_image.save("method-w2/m-w2_stego-image.png")
+                
+                print("DONE")
+
+
             elif endec_mode == "REVEAL":
-                print("put function(stego) here")
+                print("REVEALING SECRET FROM COVER USING LSB...")
+                pvd_obj.pvd_extract(temp_image_path[0], "method-w2/m-w2_secret-image.png", temp_image_path[2])
+                print("SAVING SECRET...")
+                print("PADDING DATA...")
+                print("CONVERTING SECRET FROM BYTES...")
+                print("DISPLAYING SECRET & COVER [WITH 0 LSB]")
+                with Image.open("method-w2/m-w2_secret-image.png").convert("RGB") as secret_image:
+                    secret_display = secret_image.resize((350, 350))
+                    secret_display = ImageTk.PhotoImage(secret_display)
+                    if secret_image_path:
+                        secret_image.save(secret_image_path)
+                print("DISPLAYING SECRET")
+                display_list[1] = secret_display
+                Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+
+                print("SAVING SECRET...")
+                if secret_image_path:
+                    secret_image.save(stego_image_path+"/method-w2_extracted-secret.png")
+                else:
+                    secret_image.save("method-w2/m-w2_extracted-secret.png")
+                print("DONE")
         
         print("SELECT NEW IMAGES TO RUN AGAIN")
     except NameError:
@@ -570,7 +690,7 @@ def help_info():
             IJRAR May 2023, Volume 10, Issue 2""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
-    elif selected_method == "M4 - DCT TABLE MODIFICATION":
+    elif selected_method == "M4 - HUFFMAN COMPRESSION":
         help_popup= Toplevel(root)
         help_popup.minsize(500, 260)  # width, height
         help_popup.maxsize(500, 260)
@@ -590,7 +710,7 @@ def help_info():
             DOI:10.1016/S0020-0255(01)00194-3""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
-    elif selected_method == "M5 - STEGO-IMAGE DECOLORIZATION":
+    elif selected_method == "M5 - K-LEAST SIGNIFICANT BITS ENCODING":
         help_popup= Toplevel(root)
         help_popup.minsize(500, 260)  # width, height
         help_popup.maxsize(500, 260)
@@ -627,7 +747,7 @@ def help_info():
             Based on the respective papers from Methods 1 & 2.""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
-    elif selected_method == "W2 - ???":
+    elif selected_method == "W2 - HUFFMAN + PVD":
         help_popup= Toplevel(root)
         help_popup.minsize(500, 260)  # width, height
         help_popup.maxsize(500, 260)
@@ -683,8 +803,8 @@ method_frame.grid(row=2, column=0, padx=5, pady=0)
 method_set = ["v CHOOSE METHOD v", 
               "M1 - AES + BLOWFISH ENCRYPTION", 
               "M2 - ARNOLD'S CAT MAP", 
-              "M3 - PIXEL VALUE DIFFERENCE LSB",
-              "M4 - DCT TABLE MODIFICATION",
+              "M3 - PIXEL VALUE DIFFERENCE",
+              "M4 - HUFFMAN COMPRESSION",
               "M5 - STEGO-IMAGE DECOLORIZATION",
               "W1 - ARNOLD'S CAT MAP + ENCRYPTION",
               "W2 - ???"] 

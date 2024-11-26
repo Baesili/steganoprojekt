@@ -58,14 +58,14 @@ def extract_secret_image(stego_image_path, output_secret_image_path):
     print(f"Secret image extracted successfully to {output_secret_image_path}")
 
 
-# Example usage
-cover_image_path = "forest test 1000x1000.png"  # Path to your cover image (1000x1000)
-secret_image_path = "poczowek test 350x350.png"  # Path to your secret image (350x350)
-output_image_path = "output_stego.png"  # Path for the output image
-output_secret_image_path = "output_secret.png"  # Path for the extracted secret image
+# # Example usage
+# cover_image_path = "forest test 1000x1000.png"  # Path to your cover image (1000x1000)
+# secret_image_path = "poczowek test 350x350.png"  # Path to your secret image (350x350)
+# output_image_path = "output_stego.png"  # Path for the output image
+# output_secret_image_path = "output_secret.png"  # Path for the extracted secret image
 
-# Embed the secret image
-embed_secret_image(cover_image_path, secret_image_path, output_image_path)
+# # Embed the secret image
+# embed_secret_image(cover_image_path, secret_image_path, output_image_path)
 
-# Extract the secret image from the stego image
-extract_secret_image(output_image_path, output_secret_image_path)
+# # Extract the secret image from the stego image
+# extract_secret_image(output_image_path, output_secret_image_path)
