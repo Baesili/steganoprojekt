@@ -712,15 +712,15 @@ def help_info():
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
             Programmed by Konrad Mięsowski & Szymon Maciejewski\n
-            Method 4: DCT Table Modification
+            Method 4: HUFFMAN COMPRESSION
             Implemented by Szymon Maciejewski\n
-            This method uses modified DCT on pre-divided sections of the secret, 
-            then quantizes the fragments before concealing the secret within 
-            the frequency domain; hiding more data in certain sections of the cover.\n
-            Based on: Chin-Chen Chang, Tung-Shou Chen, Lou-Zo Chung; 
-            “A steganographic method based upon JPEG and quantization 
-            table modification”; Information Sciences 141 (2002) 123–138;
-            DOI:10.1016/S0020-0255(01)00194-3""",
+            The paper presents a steganography method that uses Huffman
+            encoding to efficiently encode secret data before embedding it into an image
+            reducing the size of secret image and improving the data integrity. \n
+            Based on: R. Das and T. Tuithung, "A novel steganography method for image
+            based on Huffman Encoding," 2012 3rd National Conference on Emerging Trends
+            and Applications in Computer Science, Shillong, India, 2012, pp. 14-18,
+            doi: 10.1109/NCETACS.2012.6203290.""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
     elif selected_method == "M5 - K-LEAST SIGNIFICANT BITS ENCODING":
@@ -732,15 +732,15 @@ def help_info():
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
             Programmed by Konrad Mięsowski & Szymon Maciejewski\n
-            Method 5: Decolorization & Recolorization
+            Method 5: K-LEAST SIGNIFICANT BITS ENCODING
             Implemented by Szymon Maciejewski\n
-            The secret is concealed within the cover using typical LSB methods;
-            then a neural network decolorizes the stego-image, which is shared
-            in grayscale and recolorized before extracting the secret.\n
-            Based on: Qi Li, Bin Ma, Member IEEE, Xiaoyu Wang, Chunpeng Wang, 
-            Member IEEE, Suo Gao; “Image Steganography in Color Conversion”; 
-            IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS—II: EXPRESS BRIEFS, 
-            VOL. 71, NO. 1, JANUARY 2024; DOI:10.1109/TCSII.2023.3300330""",
+            Image steganography technique based on embedding secret data in
+            the k-least significant bits (k-LSB) of an image. By adjusting 
+            the number of LSBs used (k)\n
+            Based on: O. Elharrouss, N. Almaadeed and S. Al-Maadeed,
+            "An image steganography approach based on k-least significant bits (k-LSB),"
+            2020 IEEE International Conference on Informatics, IoT, and Enabling Technologies
+            (ICIoT), Doha, Qatar, 2020, pp. 131-135, doi: 10.1109/ICIoT48696.2020.9089566.""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
     elif selected_method == "W1 - ARNOLD'S CAT MAP + ENCRYPTION":
@@ -769,9 +769,11 @@ def help_info():
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
             Programmed by Konrad Mięsowski & Szymon Maciejewski\n
-            Method W2: ???
+            Method W2: HUFFMAN + PVD
+            This method is a combination of Method 3 & 4; the secret is first
+            compressed with Huffman encoding and then hidden in cover using PVD.
             Implemented by Szymon Maciejewski\n
-            TEXT GOES HERE""",
+            Based on the respective papers from Methods 3 & 4""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
 
