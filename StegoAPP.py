@@ -14,6 +14,8 @@ from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
 from Crypto.Util import Counter
 from huffman_lib import HuffmanCoding
+from lsb import extract_lsb
+from lsb import embed_lsb
 import base64
 import numpy
 import io
@@ -64,7 +66,7 @@ def endec_mode_select(selection):
 def pick_cover():
     try:
         global cover_image_path, cover_path
-        if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" or "M4 - HUFFMAN COMPRESSION" or "M5 - K-LEAST SIGNIFICANT BITS ENCODING" or "W2 - HUFFMAN + PVD" and endec_mode == "REVEAL"):
+        if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" or "W2 - HUFFMAN + PVD" and endec_mode == "REVEAL"):
             cover_path = askopenfilename()
             cover_image = cover_path
             with Image.open(cover_image).convert("RGB") as cover_image:
@@ -79,7 +81,7 @@ def pick_cover():
             display_list[0] = cover_display
             Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
             print("COVER IMAGE SELECTED")
-        elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB" or "M4 - HUFFMAN COMPRESSION" or "M5 - K-LEAST SIGNIFICANT BITS ENCODING" or "W2 - HUFFMAN + PVD":
+        elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB" or "W2 - HUFFMAN + PVD":
             cover_image_path = filedialog.askdirectory()  
             print("COVER SAVE PATH SELECTED")
     except Exception:
@@ -357,95 +359,106 @@ def go_activate():
                 
         
         elif selected_method == "M4 - HUFFMAN COMPRESSION":
-            pvd_obj = pvd_lib()
             if endec_mode == "CONCEAL":
-                pvd_obj.pvd_embed(temp_image_path[0], temp_image_path[1], "method-4/m-4_stego-image.png")
-
-                with Image.open("method-4/m-4_stego-image.png").convert("RGB") as stego_image:
-                    stego_display = stego_image.resize((500, 500))
-                    stego_display = ImageTk.PhotoImage(stego_display)
-
+                with open("temp/secret-image_temp.png", "rb") as image:
+                    scrambled_secret_string = base64.b64encode(image.read())
+                
+                print("CONCEALING SECRET IN COVER USING LSB...")
+                stego_image = lsb.hide(image_list[0], scrambled_secret_string)
+                
                 print("DISPLAYING STEGO-IMAGE")
+                stego_display = stego_image.resize((500, 500))
+                stego_display = ImageTk.PhotoImage(stego_display)
                 display_list[2] = stego_display
                 Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
-
+                
                 print("SAVING STEGO-IMAGE...")
                 if stego_image_path:
                     stego_image.save(stego_image_path+"/method-4_stego-image.png")
                 else:
                     stego_image.save("method-4/m-4_stego-image.png")
-                
                 print("DONE")
 
 
             elif endec_mode == "REVEAL":
                 print("REVEALING SECRET FROM COVER USING LSB...")
-                pvd_obj.pvd_extract(temp_image_path[0], "method-4/m-4_secret-image.png", temp_image_path[2])
-                print("SAVING SECRET...")
+                scrambled_secret_string = lsb.reveal(image_list[2])[2:]
+
                 print("PADDING DATA...")
+                missing_padding = len(scrambled_secret_string) % 4
+                if missing_padding:
+                    scrambled_secret_string += '=' * (4 - missing_padding)
+
                 print("CONVERTING SECRET FROM BYTES...")
+                imgdata = base64.b64decode(scrambled_secret_string)
+                scrambled_image = "method-4/m-4_extracted-secret.png"
+                
+                with open(scrambled_image, 'wb') as f:
+                    f.write(imgdata)
+                
+                image_list[1] = scrambled_image
+                
                 print("DISPLAYING SECRET & COVER [WITH 0 LSB]")
-                with Image.open("method-4/m-4_secret-image.png").convert("RGB") as secret_image:
-                    secret_display = secret_image.resize((350, 350))
-                    secret_display = ImageTk.PhotoImage(secret_display)
-                    if secret_image_path:
-                        secret_image.save(secret_image_path)
-                print("DISPLAYING SECRET")
+                secret_img = Image.open(scrambled_image)
+                secret_display = ImageTk.PhotoImage(secret_img)
                 display_list[1] = secret_display
                 Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
 
-                print("SAVING SECRET...")
-                if secret_image_path:
-                    secret_image.save(stego_image_path+"/method-4_extracted-secret.png")
-                else:
-                    secret_image.save("method-4/m-4_extracted-secret.png")
+                display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
+                Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
+
                 print("DONE")
         
         elif selected_method == "M5 - K-LEAST SIGNIFICANT BITS ENCODING":
-            pvd_obj = pvd_lib()
             if endec_mode == "CONCEAL":
-                pvd_obj.pvd_embed(temp_image_path[0], temp_image_path[1], "method-5/m-5_stego-image.png")
-
-                with Image.open("method-5/m-5_stego-image.png").convert("RGB") as stego_image:
-                    stego_display = stego_image.resize((500, 500))
-                    stego_display = ImageTk.PhotoImage(stego_display)
-
+                with open("temp/secret-image_temp.png", "rb") as image:
+                    scrambled_secret_string = base64.b64encode(image.read())
+                
+                print("CONCEALING SECRET IN COVER USING LSB...")
+                stego_image = lsb.hide(image_list[0], scrambled_secret_string)
+                
                 print("DISPLAYING STEGO-IMAGE")
+                stego_display = stego_image.resize((500, 500))
+                stego_display = ImageTk.PhotoImage(stego_display)
                 display_list[2] = stego_display
                 Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
-
+                
                 print("SAVING STEGO-IMAGE...")
                 if stego_image_path:
                     stego_image.save(stego_image_path+"/method-5_stego-image.png")
                 else:
                     stego_image.save("method-5/m-5_stego-image.png")
-                
                 print("DONE")
 
 
             elif endec_mode == "REVEAL":
                 print("REVEALING SECRET FROM COVER USING LSB...")
-                pvd_obj.pvd_extract(temp_image_path[0], "method-5/m-5_secret-image.png", temp_image_path[2])
-                print("SAVING SECRET...")
+                scrambled_secret_string = lsb.reveal(image_list[2])[2:]
+
                 print("PADDING DATA...")
+                missing_padding = len(scrambled_secret_string) % 4
+                if missing_padding:
+                    scrambled_secret_string += '=' * (4 - missing_padding)
+
                 print("CONVERTING SECRET FROM BYTES...")
+                imgdata = base64.b64decode(scrambled_secret_string)
+                scrambled_image = "method-5/m-5_extracted-secret.png"
+                
+                with open(scrambled_image, 'wb') as f:
+                    f.write(imgdata)
+                
+                image_list[1] = scrambled_image
+                
                 print("DISPLAYING SECRET & COVER [WITH 0 LSB]")
-                with Image.open("method-5/m-5_secret-image.png").convert("RGB") as secret_image:
-                    secret_display = secret_image.resize((350, 350))
-                    secret_display = ImageTk.PhotoImage(secret_display)
-                    if secret_image_path:
-                        secret_image.save(secret_image_path)
-                print("DISPLAYING SECRET")
+                secret_img = Image.open(scrambled_image)
+                secret_display = ImageTk.PhotoImage(secret_img)
                 display_list[1] = secret_display
                 Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
 
-                print("SAVING SECRET...")
-                if secret_image_path:
-                    secret_image.save(stego_image_path+"/method-5_extracted-secret.png")
-                else:
-                    secret_image.save("method-5/m-5_extracted-secret.png")
+                display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
+                Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
+
                 print("DONE")
-        
 
         elif selected_method == "W1 - ARNOLD'S CAT MAP + ENCRYPTION":
             if endec_mode == "CONCEAL":
@@ -805,9 +818,9 @@ method_set = ["v CHOOSE METHOD v",
               "M2 - ARNOLD'S CAT MAP", 
               "M3 - PIXEL VALUE DIFFERENCE",
               "M4 - HUFFMAN COMPRESSION",
-              "M5 - STEGO-IMAGE DECOLORIZATION",
+              "M5 - K-LEAST SIGNIFICANT BITS ENCODING",
               "W1 - ARNOLD'S CAT MAP + ENCRYPTION",
-              "W2 - ???"] 
+              "W2 - HUFFMAN + PVD"] 
 
 method = StringVar(root)
 method.set(method_set[0]) # default value
