@@ -66,7 +66,7 @@ def endec_mode_select(selection):
 def pick_cover():
     try:
         global cover_image_path, cover_path
-        if endec_mode == "CONCEAL" or (selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB" or "W2 - HUFFMAN + PVD" and endec_mode == "REVEAL"):
+        if endec_mode == "CONCEAL" or endec_mode == "REVEAL" and selected_method in ("M3 - PIXEL VALUE DIFFERENCE","W2 - HUFFMAN + PVD"):
             cover_path = askopenfilename()
             cover_image = cover_path
             with Image.open(cover_image).convert("RGB") as cover_image:
@@ -81,7 +81,7 @@ def pick_cover():
             display_list[0] = cover_display
             Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
             print("COVER IMAGE SELECTED")
-        elif endec_mode == "REVEAL" and selected_method != "M3 - PIXEL VALUE DIFFERENCE LSB" or "W2 - HUFFMAN + PVD":
+        elif endec_mode == "REVEAL" and selected_method not in ("M3 - PIXEL VALUE DIFFERENCE","W2 - HUFFMAN + PVD"):
             cover_image_path = filedialog.askdirectory()  
             print("COVER SAVE PATH SELECTED")
     except Exception:
@@ -163,7 +163,7 @@ def go_activate():
                 print("ENCRYPTING WITH BLOWFISH...")
                 blowfish_cipher = Blowfish.new(BLOWFISH_KEY, Blowfish.MODE_CBC, BLOWFISH_IV)
                 blowfish_encrypted = blowfish_cipher.encrypt(pad(aes_encrypted, Blowfish.block_size))
-                print(blowfish_encrypted[-32:])
+                #print(blowfish_encrypted[-32:])
 
                 with open("method-1/m-1_encrypted-secret.png", 'wb') as f:
                     f.write(blowfish_encrypted)
@@ -777,7 +777,8 @@ def help_info():
             Method W2: HUFFMAN + PVD
             Implemented by Szymon Maciejewski\n
             This method is a combination of Method 3 & 4; the secret image is first
-            compressed with Huffman encoding and then concealed using PVD.\n
+            compressed with Huffman encoding and then concealed using PVD.
+            IMPORTANT: TO REVEAL SECRET FROM STEGO-IMAGE, PROVIDE COVER!\n
             Based on the respective papers from Methods 3 & 4""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
