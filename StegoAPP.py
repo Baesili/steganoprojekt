@@ -586,10 +586,6 @@ def go_activate():
                 display_list[2] = stego_display
                 Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
 
-                display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
-                Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
-        
-
                 print("SAVING STEGO-IMAGE...")
                 if stego_image_path:
                     stego_image.save(stego_image_path+"/method-w2_stego-image.png")
@@ -611,9 +607,14 @@ def go_activate():
                     secret_display = ImageTk.PhotoImage(secret_display)
                     if secret_image_path:
                         secret_image.save(secret_image_path)
+
                 print("DISPLAYING SECRET")
                 display_list[1] = secret_display
                 Label(secret_frame, image=display_list[1]).grid(row=0, column=0, padx=0, pady=0)
+
+                display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
+                Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
+        
 
                 print("SAVING SECRET...")
                 if secret_image_path:
