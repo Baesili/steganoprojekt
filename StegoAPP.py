@@ -586,6 +586,10 @@ def go_activate():
                 display_list[2] = stego_display
                 Label(stego_frame, image=display_list[2]).grid(row=0, column=0, padx=0, pady=0)
 
+                display_list[0] = ImageTk.PhotoImage(zero_last_bit(temp_image_path[2]).resize((500,500)))
+                Label(cover_frame, image=display_list[0]).grid(row=0, column=0, padx=0, pady=0)
+        
+
                 print("SAVING STEGO-IMAGE...")
                 if stego_image_path:
                     stego_image.save(stego_image_path+"/method-w2_stego-image.png")
