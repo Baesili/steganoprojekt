@@ -684,7 +684,7 @@ def help_info():
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
     
-    elif selected_method == "M3 - PIXEL VALUE DIFFERENCE LSB":
+    elif selected_method == "M3 - PIXEL VALUE DIFFERENCE":
         help_popup= Toplevel(root)
         help_popup.minsize(500, 240)  # width, height
         help_popup.maxsize(500, 240)
@@ -714,33 +714,33 @@ def help_info():
             Programmed by Konrad Mięsowski & Szymon Maciejewski\n
             Method 4: HUFFMAN COMPRESSION
             Implemented by Szymon Maciejewski\n
-            The paper presents a steganography method that uses Huffman
-            encoding to efficiently encode secret data before embedding it into an image
-            reducing the size of secret image and improving the data integrity. \n
-            Based on: R. Das and T. Tuithung, "A novel steganography method for image
-            based on Huffman Encoding," 2012 3rd National Conference on Emerging Trends
-            and Applications in Computer Science, Shillong, India, 2012, pp. 14-18,
-            doi: 10.1109/NCETACS.2012.6203290.""",
+            This method uses Huffman encoding to efficiently encode secret data 
+            before embedding it into an image, reducing the size of the secret 
+            image and improving data integrity. \n
+            Based on: R. Das and T. Tuithung, "A novel steganography method for
+            image based on Huffman Encoding", 2012 3rd National Conference 
+            on Emerging Trends and Applications in Computer Science, 
+            Shillong, India, 2012, pp. 14-18, doi: 10.1109/NCETACS.2012.6203290.""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
     elif selected_method == "M5 - K-LEAST SIGNIFICANT BITS ENCODING":
         help_popup= Toplevel(root)
-        help_popup.minsize(500, 260)  # width, height
-        help_popup.maxsize(500, 260)
-        help_popup.geometry("500x260+500+280")
+        help_popup.minsize(500, 280)  # width, height
+        help_popup.maxsize(500, 280)
+        help_popup.geometry("500x280+500+280")
         help_popup.title("HELP & INFO - Method 5")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
             Programmed by Konrad Mięsowski & Szymon Maciejewski\n
             Method 5: K-LEAST SIGNIFICANT BITS ENCODING
             Implemented by Szymon Maciejewski\n
-            Image steganography technique based on embedding secret data in
-            the k-least significant bits (k-LSB) of an image. By adjusting 
-            the number of LSBs used (k)\n
+            This image steganography technique is based on embedding secret
+            data in the k-least significant bits (k-LSB) of an image.\n
             Based on: O. Elharrouss, N. Almaadeed and S. Al-Maadeed,
-            "An image steganography approach based on k-least significant bits (k-LSB),"
-            2020 IEEE International Conference on Informatics, IoT, and Enabling Technologies
-            (ICIoT), Doha, Qatar, 2020, pp. 131-135, doi: 10.1109/ICIoT48696.2020.9089566.""",
+            "An image steganography approach based on k-least significant 
+            bits (k-LSB)", 2020 IEEE International Conference on Informatics, 
+            IoT, and Enabling Technologies (ICIoT), Doha, Qatar, 2020, pp. 131-135, 
+            doi: 10.1109/ICIoT48696.2020.9089566.""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
     elif selected_method == "W1 - ARNOLD'S CAT MAP + ENCRYPTION":
@@ -762,17 +762,17 @@ def help_info():
     
     elif selected_method == "W2 - HUFFMAN + PVD":
         help_popup= Toplevel(root)
-        help_popup.minsize(500, 260)  # width, height
-        help_popup.maxsize(500, 260)
-        help_popup.geometry("500x260+500+280")
+        help_popup.minsize(500, 230)  # width, height
+        help_popup.maxsize(500, 230)
+        help_popup.geometry("500x230+500+280")
         help_popup.title("HELP & INFO - Method W2")
         Label(help_popup, text="""
             This is a programme for Image-in-Image steganography. 
             Programmed by Konrad Mięsowski & Szymon Maciejewski\n
             Method W2: HUFFMAN + PVD
-            This method is a combination of Method 3 & 4; the secret is first
-            compressed with Huffman encoding and then hidden in cover using PVD.
             Implemented by Szymon Maciejewski\n
+            This method is a combination of Method 3 & 4; the secret image is first
+            compressed with Huffman encoding and then concealed using PVD.\n
             Based on the respective papers from Methods 3 & 4""",
              justify="left").place(relx=-0.07, rely=0.45, anchor=W)
     
