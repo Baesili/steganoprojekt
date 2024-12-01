@@ -1,5 +1,5 @@
-# KONRAD
-# ARNOLD + LSB
+# KONRAD x
+# ARNOLD + LSB 
 
 import os
 import io
